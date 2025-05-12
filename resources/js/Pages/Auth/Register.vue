@@ -23,12 +23,13 @@ const submit = () => {
 </script>
 
 <template>
+    <Head title="- Register" />
     <Container class="w-1/2">
         <div class="mb-8 text-center">
             <Title>Register a new account</Title>
             <p>
                 Already have an account?
-                <TextLink routeName="home" label="Login" />
+                <TextLink routeName="login" label="Login" />
             </p>
         </div>
         <!-- Errors message -->
