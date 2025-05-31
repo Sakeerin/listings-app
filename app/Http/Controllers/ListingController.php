@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateListingRequest;
 use Illuminate\Http\Request;
 use App\Models\Listing;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class ListingController extends Controller
@@ -43,9 +44,34 @@ class ListingController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(StoreListingRequest $request)
+    public function store(Request $request)
     {
-        //
+       
+        // $newTags = explode(',' ,  $request->tags);
+        // $newTags = array_map('trim', $newTags);
+        // $newTags = array_filter($newTags);
+        // $newTags = array_unique($newTags);
+        // $newTags = implode(',', $newTags);
+        //  dd($newTags);
+
+        $fields = $request->validate([
+            'title' => ['required', 'max:255'],
+            'desc' => ['required'],
+            'tags' => ['nullable', 'string'],
+            'email' => ['nullable', 'email'],
+            'link' => ['nullable', 'url'],
+            'image' => ['nullable', 'file', 'max:3072', 'mimes:jpeg,jpg,png,webp']
+        ]);
+
+        if ($request->hasFile('image')) {
+            $fields['image'] = Storage::disk('public')->put('images/listing', $request->image);
+        }
+
+        $fields['tags'] = implode(',', array_unique(array_filter(array_map('trim', explode(',',  $request->tags)))));
+
+        $request->user()->listings()->create($fields);
+
+        return redirect()->route('dashboard')->with('status', 'Listing created successfully.');
     }
 
     /**
@@ -67,7 +93,7 @@ class ListingController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(UpdateListingRequest $request, Listing $listing)
+    public function update(Request $request, Listing $listing)
     {
         //
     }
